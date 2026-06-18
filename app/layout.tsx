@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Inventory POS",
-    template: "%s | Inventory POS",
+    default: "INJAYA POS",
+    template: "%s | INJAYA POS",
   },
   description: "Integrated Inventory Management & Point of Sale System",
 };

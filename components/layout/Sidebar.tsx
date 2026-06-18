@@ -112,7 +112,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Package size={18} className="text-white" />
             </div>
             <span className="font-bold text-lg tracking-tight">
-              Inventory<span className="text-[hsl(var(--primary))]">POS</span>
+              Injaya<span className="text-[hsl(var(--primary))]">POS</span>
             </span>
           </Link>
           <button
