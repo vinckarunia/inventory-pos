@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// NextAuth v5 edge-compatible middleware
-// We avoid importing Prisma here since middleware runs on Edge Runtime
-export async function middleware(request: NextRequest) {
+// NextAuth v5 edge-compatible proxy boundary logic
+// We avoid importing Prisma here since proxy/middleware runs on Edge Runtime
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes that don't need auth
