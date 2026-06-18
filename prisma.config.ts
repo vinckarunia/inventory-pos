@@ -7,6 +7,9 @@ const config = {
     url: env("DATABASE_URL") || "",
     directUrl: env("DIRECT_URL") || "",
   },
+  migrations: {
+    seed: "npx tsx prisma/seed.ts",
+  },
 };
 
 export default defineConfig(config as any);
