@@ -41,6 +41,35 @@ async function main() {
   });
 
   console.log("✅ Default settings created");
+
+  // Create default units
+  const defaultUnits = [
+    { name: "Pieces", symbol: "pcs" },
+    { name: "Box", symbol: "box" },
+    { name: "Kilogram", symbol: "kg" },
+    { name: "Liter", symbol: "L" },
+  ];
+
+  for (const unit of defaultUnits) {
+    await prisma.unit.upsert({
+      where: { symbol: unit.symbol },
+      update: {},
+      create: unit,
+    });
+  }
+  console.log("✅ Default units created");
+
+  // Create a default category
+  await prisma.category.upsert({
+    where: { name: "General" },
+    update: {},
+    create: {
+      name: "General",
+      slug: "general",
+      description: "Default category",
+    },
+  });
+  console.log("✅ Default category created");
   console.log("🎉 Seeding complete!");
 }
 

@@ -1,0 +1,35 @@
+🌱 Seeding database...
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.upsert()` invocation in
+/home/vinc/inventory-pos/prisma/seed.ts:10:21
+
+   7 // Create admin user
+   8 const hashedPassword = await bcrypt.hash("password", 12);
+   9 
+→ 10 await prisma.user.upsert(
+Authentication failed against the database server, the provided database credentials for `postgres` are not valid
+    at zr.handleRequestError (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+client@7.8.0_prisma@7.8.0_@types+react-dom@19.2.3_@types+react@19.2.17__@types+_12a6afd4e8168cdd815b06207f03ccf9/node_modules/@prisma/client/src/runtime/RequestHandler.ts:237:13)
+    at zr.handleAndLogRequestError (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+client@7.8.0_prisma@7.8.0_@types+react-dom@19.2.3_@types+react@19.2.17__@types+_12a6afd4e8168cdd815b06207f03ccf9/node_modules/@prisma/client/src/runtime/RequestHandler.ts:183:12)
+    at zr.request (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+client@7.8.0_prisma@7.8.0_@types+react-dom@19.2.3_@types+react@19.2.17__@types+_12a6afd4e8168cdd815b06207f03ccf9/node_modules/@prisma/client/src/runtime/RequestHandler.ts:152:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async a (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+client@7.8.0_prisma@7.8.0_@types+react-dom@19.2.3_@types+react@19.2.17__@types+_12a6afd4e8168cdd815b06207f03ccf9/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:963:24)
+    at async main (/home/vinc/inventory-pos/prisma/seed.ts:10:3) {
+  code: 'P1000',
+  meta: {
+    modelName: 'User',
+    driverAdapterError: DriverAdapterError: AuthenticationFailed
+        at PrismaPgAdapter.onError (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+adapter-pg@7.8.0/node_modules/@prisma/adapter-pg/dist/index.js:678:11)
+        at /home/vinc/inventory-pos/node_modules/.pnpm/@prisma+adapter-pg@7.8.0/node_modules/@prisma/adapter-pg/dist/index.js:720:68
+        at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at async PrismaPgAdapter.startTransaction (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+adapter-pg@7.8.0/node_modules/@prisma/adapter-pg/dist/index.js:720:18)
+        at async qt.#r (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+client@7.8.0_prisma@7.8.0_@types+react-dom@19.2.3_@types+react@19.2.17__@types+_12a6afd4e8168cdd815b06207f03ccf9/node_modules/@prisma/client-engine-runtime/src/transaction-manager/transaction-manager.ts:163:31)
+        at async qt.startInternalTransaction (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+client@7.8.0_prisma@7.8.0_@types+react-dom@19.2.3_@types+react@19.2.17__@types+_12a6afd4e8168cdd815b06207f03ccf9/node_modules/@prisma/client-engine-runtime/src/transaction-manager/transaction-manager.ts:96:12)
+        at async e.interpretNode (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+client@7.8.0_prisma@7.8.0_@types+react-dom@19.2.3_@types+react@19.2.17__@types+_12a6afd4e8168cdd815b06207f03ccf9/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:259:33)
+        at async e.run (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+client@7.8.0_prisma@7.8.0_@types+react-dom@19.2.3_@types+react@19.2.17__@types+_12a6afd4e8168cdd815b06207f03ccf9/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:94:23)
+        at async e.execute (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+client@7.8.0_prisma@7.8.0_@types+react-dom@19.2.3_@types+react@19.2.17__@types+_12a6afd4e8168cdd815b06207f03ccf9/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12)
+        at async jt.request (/home/vinc/inventory-pos/node_modules/.pnpm/@prisma+client@7.8.0_prisma@7.8.0_@types+react-dom@19.2.3_@types+react@19.2.17__@types+_12a6afd4e8168cdd815b06207f03ccf9/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:504:22) {
+      cause: [Object]
+    }
+  },
+  clientVersion: '7.8.0'
+}

@@ -181,7 +181,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* Footer */}
         <div className="p-4 border-t border-[hsl(var(--border))]">
           <div className="text-xs text-[hsl(var(--muted-foreground))] text-center">
-            © {new Date().getFullYear()} InventoryPOS
+            © {new Date().getFullYear()} InjayaPOS
           </div>
         </div>
       </aside>

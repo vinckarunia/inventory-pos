@@ -167,7 +167,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-xs text-[hsl(var(--muted-foreground))] mt-6">
-          © {new Date().getFullYear()} InventoryPOS. All rights reserved.
+          © {new Date().getFullYear()} InjayaPOS. All rights reserved.
         </p>
       </div>
     </div>

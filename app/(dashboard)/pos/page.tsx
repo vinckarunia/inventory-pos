@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import {
   ShoppingCart,
   Search,
@@ -11,86 +12,19 @@ import {
   CreditCard,
   X,
   Printer,
-  ChevronRight,
-  User,
+  Sparkles,
   Percent,
   MessageSquare,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePOSStore } from "@/lib/store/posStore";
 import { formatCurrency } from "@/lib/utils/format";
 
-// Mock products data for premium demo / local fallback
-const MOCK_PRODUCTS = [
-  {
-    productId: "p1",
-    name: "Espresso Blend Coffee",
-    sku: "COF-ESP-001",
-    price: 35000,
-    stock: 25,
-    category: "Beverage",
-    image: null,
-    discount: 0,
-  },
-  {
-    productId: "p2",
-    name: "Matcha Latte Premium",
-    sku: "COF-MAT-002",
-    price: 38000,
-    stock: 15,
-    category: "Beverage",
-    image: null,
-    discount: 2000,
-  },
-  {
-    productId: "p3",
-    name: "Croissant Almond",
-    sku: "BAK-CRO-003",
-    price: 28000,
-    stock: 10,
-    category: "Food",
-    image: null,
-    discount: 0,
-  },
-  {
-    productId: "p4",
-    name: "Chocolate Chip Cookie",
-    sku: "BAK-CHO-004",
-    price: 18000,
-    stock: 40,
-    category: "Snack",
-    image: null,
-    discount: 0,
-  },
-  {
-    productId: "p5",
-    name: "Iced Peach Tea",
-    sku: "BEV-TEA-005",
-    price: 24000,
-    stock: 30,
-    category: "Beverage",
-    image: null,
-    discount: 0,
-  },
-  {
-    productId: "p6",
-    name: "Premium Beef Burger",
-    sku: "FOD-BUR-006",
-    price: 55000,
-    stock: 8,
-    category: "Food",
-    image: null,
-    discount: 5000,
-  },
-];
-
-const CATEGORIES = ["All", "Beverage", "Food", "Snack"];
-
 export default function POSPage() {
   const t = useTranslations("pos");
   const tc = useTranslations("common");
   const locale = useLocale();
+  const { data: session } = useSession();
 
   const {
     cart,
@@ -107,6 +41,10 @@ export default function POSPage() {
     getTotal,
   } = usePOSStore();
 
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>(["All"]);
+  const [loading, setLoading] = useState(true);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [showCart, setShowCart] = useState(false);
@@ -118,13 +56,51 @@ export default function POSPage() {
   const [changeAmount, setChangeAmount] = useState<number>(0);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [processing, setProcessing] = useState(false);
+
+  // Fetch products and categories on mount
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [resProducts, resCategories] = await Promise.all([
+          fetch("/api/products"),
+          fetch("/api/categories"),
+        ]);
+
+        if (resProducts.ok && resCategories.ok) {
+          const dbProducts = await resProducts.json();
+          const dbCategories = await resCategories.json();
+
+          const mappedProducts = dbProducts.map((p: any) => ({
+            productId: p.id,
+            name: p.name,
+            sku: p.sku,
+            price: Number(p.sellingPrice),
+            stock: p.stock,
+            category: p.category?.name || "Others",
+            image: p.image,
+            discount: 0, // Default to 0 discount for DB products
+          }));
+
+          setProducts(mappedProducts);
+          setCategories(["All", ...dbCategories.map((c: any) => c.name)]);
+        }
+      } catch (err) {
+        console.error("Failed to load POS data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
 
   const subtotal = getSubtotal();
   const taxAmount = getTaxAmount();
   const total = getTotal();
 
   // Filter products based on search & category
-  const filteredProducts = MOCK_PRODUCTS.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.sku.toLowerCase().includes(searchQuery.toLowerCase());
@@ -143,19 +119,70 @@ export default function POSPage() {
     }
   }, [amountPaid, total, paymentMethod]);
 
-  const handleProcessPayment = () => {
+  const handleProcessPayment = async () => {
     if (paymentMethod === "CASH" && amountPaid < total) {
       alert(t("insufficientPayment"));
       return;
     }
 
-    // Generate random invoice number
-    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    setInvoiceNumber(`INV-${dateStr}-${randomNum}`);
-    
-    setShowCheckoutModal(false);
-    setShowReceiptModal(true);
+    setProcessing(true);
+
+    try {
+      // Generate random invoice number
+      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      const generatedInvoice = `INV-${dateStr}-${randomNum}`;
+
+      const txItems = cart.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        discount: item.discount || 0,
+      }));
+
+      const response = await fetch("/api/transactions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          invoiceNumber: generatedInvoice,
+          cashierId: session?.user?.id || "cl-default-cashier",
+          customerId: null,
+          subtotal,
+          discountAmount: discount,
+          taxAmount,
+          totalAmount: total,
+          paymentMethod,
+          amountPaid,
+          items: txItems,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Transaction failed");
+      }
+
+      setInvoiceNumber(generatedInvoice);
+      setShowCheckoutModal(false);
+      setShowReceiptModal(true);
+
+      // Refresh product quantities locally
+      setProducts((prev) =>
+        prev.map((p) => {
+          const cartItem = cart.find((i) => i.productId === p.productId);
+          if (cartItem) {
+            return { ...p, stock: Math.max(0, p.stock - cartItem.quantity) };
+          }
+          return p;
+        })
+      );
+    } catch (err: any) {
+      alert("Error processing transaction: " + err.message);
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const handleNewTransaction = () => {
@@ -188,7 +215,7 @@ export default function POSPage() {
           </div>
 
           <div className="flex gap-1 overflow-x-auto pb-1 sm:pb-0">
-            {CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -219,7 +246,11 @@ export default function POSPage() {
 
         {/* Product Cards Grid */}
         <div className="flex-1 overflow-y-auto rounded-2xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] p-4">
-          {filteredProducts.length === 0 ? (
+          {loading ? (
+            <div className="h-full flex items-center justify-center">
+              <span className="text-sm text-[hsl(var(--muted-foreground))] animate-pulse">Loading POS...</span>
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-8">
               <ShoppingCart size={48} className="text-[hsl(var(--muted-foreground))] mb-3 opacity-30 animate-pulse" />
               <p className="text-sm text-[hsl(var(--muted-foreground))]">{tc("noData")}</p>
@@ -602,10 +633,10 @@ export default function POSPage() {
                 </button>
                 <button
                   onClick={handleProcessPayment}
-                  disabled={paymentMethod === "CASH" && amountPaid < total}
+                  disabled={processing || (paymentMethod === "CASH" && amountPaid < total)}
                   className="py-2.5 rounded-xl font-semibold text-sm text-white gradient-primary shadow-lg shadow-[hsl(var(--primary)/0.2)] disabled:opacity-50"
                 >
-                  {t("processPayment")}
+                  {processing ? "..." : t("processPayment")}
                 </button>
               </div>
             </div>
