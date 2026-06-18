@@ -1,0 +1,11 @@
+allowBuilds:
+  '@parcel/watcher': false
+  '@prisma/engines': false
+  '@swc/core': false
+  core-js: false
+  prisma: false
+  sharp: false
+  unrs-resolver: false
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
