@@ -321,7 +321,7 @@ export default function POSPage() {
       </div>
 
       {/* Right Pane: Cart (Desktop Sidebar) */}
-      <div className="hidden lg:flex w-96 flex-col rounded-2xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] overflow-hidden shadow-sm">
+      <div className="hidden lg:flex w-96 shrink-0 flex-col rounded-2xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] overflow-hidden shadow-sm">
         
         {/* Cart Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--border))] bg-[hsl(var(--muted))/0.3]">
