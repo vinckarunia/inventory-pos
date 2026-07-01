@@ -423,10 +423,6 @@ export default function POSPage() {
                 <span className="font-semibold">-{formatCurrency(discount, locale)}</span>
               </div>
             )}
-            <div className="flex justify-between">
-              <span className="text-[hsl(var(--muted-foreground))]">{t("tax", { rate: "11" })}</span>
-              <span className="font-semibold">{formatCurrency(taxAmount, locale)}</span>
-            </div>
             <div className="h-px bg-[hsl(var(--border))] my-1" />
             <div className="flex justify-between text-base font-bold">
               <span>{t("total")}</span>

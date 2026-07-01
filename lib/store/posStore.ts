@@ -32,7 +32,7 @@ export const usePOSStore = create<POSState>()(
       customer: null,
       discount: 0,
       notes: "",
-      taxRate: 0.11,
+      taxRate: 0,
 
       addToCart: (item) => {
         const cart = get().cart;
